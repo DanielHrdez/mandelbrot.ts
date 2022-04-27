@@ -9,39 +9,21 @@
  * @desc Mandelbrot class
  */
 
-import {Complex} from './complejo';
+import {Complex} from './complejo.js';
 
 /**
  * @class Mandelbrot
  * @desc Mandelbrot class
  */
 export class Mandelbrot {
-  private width: number;
-  private height: number;
   private maxIterations: number;
-  private xPosition: number;
-  private yPosition: number;
 
   /**
    * @desc Mandelbrot class constructor
-   * @param {number} width - width of the canvas
-   * @param {number} height - height of the canvas
    * @param {number} maxIterations - max iterations
-   * @param {number} xPosition - x position
-   * @param {number} yPosition - y position
    */
-  constructor(
-      width: number,
-      height: number,
-      maxIterations: number,
-      xPosition: number,
-      yPosition: number,
-  ) {
-    this.width = width;
-    this.height = height;
+  constructor(maxIterations: number) {
     this.maxIterations = maxIterations;
-    this.xPosition = xPosition;
-    this.yPosition = yPosition;
   }
 
   /**
@@ -49,13 +31,7 @@ export class Mandelbrot {
    * @return {string} - string representation of the mandelbrot set
    */
   public toString(): string {
-    return '{\n' +
-        `  Width: ${this.width}\n` +
-        `  Height: ${this.height}\n` +
-        `  Max iterations: ${this.maxIterations}\n` +
-        `  X position: ${this.xPosition}\n` +
-        `  Y position: ${this.yPosition}\n` +
-        '}';
+    return `Max iterations: ${this.maxIterations}\n`;
   }
 
   /**
@@ -70,5 +46,29 @@ export class Mandelbrot {
       if (result.abs() > 2) return i;
     }
     return this.maxIterations;
+  }
+
+  /**
+   * @desc Draws the mandelbrot set on a canvas
+   * @param {HTMLCanvasElement} canvas - canvas
+   */
+  public draw(canvas: HTMLCanvasElement): void {
+    const context = canvas.getContext('2d');
+    const imageData = context?.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = imageData?.data;
+    const channels = 4;
+    const maxRGBA = 255;
+
+    for (let i = 0; i < pixels!.length; i += channels) {
+      const complex = new Complex(i, i % (channels * canvas.width));
+      const result = this.calculate(complex);
+      const color = result * maxRGBA / this.maxIterations;
+      pixels![i] = color;
+      pixels![i + 1] = color;
+      pixels![i + 2] = color;
+      pixels![i + 3] = maxRGBA;
+    }
+
+    context?.putImageData(imageData!, 0, 0);
   }
 }

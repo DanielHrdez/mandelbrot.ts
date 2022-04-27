@@ -9,14 +9,18 @@
  * @desc Main execution of the Mandelbrot
  */
 
-import {Mandelbrot} from './mandelbrot';
+import {Mandelbrot} from './mandelbrot.js';
 
-let iterations = 100;
+const initialIterations = 100;
 
-const mandelbrot = new Mandelbrot(
-    screen.width,
-    screen.height,
-    iterations,
-    0,
-    0,
-);
+const mandelbrot = new Mandelbrot(initialIterations);
+
+/**
+ * @desc execute the mandelbrot set on a canvas
+ */
+function execute(): void {
+  const canvas = document.getElementById('mandelbrot') as HTMLCanvasElement;
+  mandelbrot.draw(canvas);
+}
+
+window.onload = execute;

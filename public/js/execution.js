@@ -1,3 +1,8 @@
-import { Mandelbrot } from './mandelbrot';
-var iterations = 100;
-var mandelbrot = new Mandelbrot(screen.width, screen.height, iterations, 0, 0);
+import { Mandelbrot } from './mandelbrot.js';
+var initialIterations = 100;
+var mandelbrot = new Mandelbrot(initialIterations);
+function execute() {
+    var canvas = document.getElementById('mandelbrot');
+    mandelbrot.draw(canvas);
+}
+window.onload = execute;

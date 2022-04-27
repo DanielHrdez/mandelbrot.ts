@@ -18,10 +18,14 @@ import express from 'express';
 const app = express();
 const port = 8080;
 
-app.use(express.static('.'));
+app.use(express.static('public'));
+app.use(express.static('docs'));
+app.use(express.static('coverage'));
+
 app.listen(port, '0.0.0.0', () => {
   console.log(`The server is running on http://10.6.131.165:${port}`);
 });
+
 app.get('/', (req, res) => {
-  res.sendFile('index.html', {root: '.'});
+  res.sendFile('index.html', {root: 'public'});
 });
