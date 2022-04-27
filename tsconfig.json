@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "public/js",
+    "module": "ES6",
+    "moduleResolution": "node",
+    "removeComments": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+  }
+}

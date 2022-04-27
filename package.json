@@ -2,31 +2,39 @@
   "name": "2021-2022_p10_canvas-mandelbrot",
   "version": "1.0.0",
   "description": "PAI Lab assignment #10. The HML5 Canvas API Mandelbrot Set",
-  "main": "index.js",
+  "main": "web-server/app.js",
   "devDependencies": {
     "@babel/core": "^7.17.4",
     "@exercism/eslint-config-javascript": "^0.6.0",
     "@types/jest": "^27.4.1",
     "@types/node": "^16.11.25",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
     "babel-jest": "^27.5.1",
     "core-js": "^3.21.1",
-    "eslint": "^8.9.0",
+    "eslint": "^8.14.0",
+    "eslint-config-google": "^0.14.0",
     "jest": "^27.5.1"
-  },  
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "jest --watchAll --verbose",
-    "coverage": "jest --coverage --verbose"
+    "coverage": "jest --coverage --verbose",
+    "start": "web-server/app.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ULL-ESIT-PAI-2021-2022/2021-2022-PAI-P10-Canvas-Mandelbrot.git"
   },
   "keywords": [],
-  "author": "F. de Sande <fsande@ull.es>",
+  "author": "Daniel Hernandez de Leon <alu0101331720@ull.edu.es>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ULL-ESIT-PAI-2021-2022/2021-2022-PAI-P10-Canvas-Mandelbrot/issues"
   },
-  "homepage": "https://github.com/ULL-ESIT-PAI-2021-2022/2021-2022-PAI-P10-Canvas-Mandelbrot#readme"
+  "homepage": "https://github.com/ULL-ESIT-PAI-2021-2022/2021-2022-PAI-P10-Canvas-Mandelbrot#readme",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.18.0"
+  }
 }
