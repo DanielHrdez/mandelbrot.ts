@@ -4,7 +4,9 @@
   "description": "PAI Lab assignment #10. The HML5 Canvas API Mandelbrot Set",
   "main": "web-server/app.js",
   "devDependencies": {
-    "@babel/core": "^7.17.4",
+    "@babel/core": "^7.17.9",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
     "@exercism/eslint-config-javascript": "^0.6.0",
     "@types/jest": "^27.4.1",
     "@types/node": "^16.11.25",
@@ -14,10 +16,12 @@
     "core-js": "^3.21.1",
     "eslint": "^8.14.0",
     "eslint-config-google": "^0.14.0",
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "typescript": "^4.6.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "watch": "jest --watchAll --verbose",
     "coverage": "jest --coverage --verbose",
     "start": "web-server/app.js"
@@ -35,6 +39,7 @@
   "homepage": "https://github.com/ULL-ESIT-PAI-2021-2022/2021-2022-PAI-P10-Canvas-Mandelbrot#readme",
   "type": "module",
   "dependencies": {
-    "express": "^4.18.0"
+    "express": "^4.18.0",
+    "ts-node": "^10.7.0"
   }
 }

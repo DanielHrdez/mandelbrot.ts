@@ -15,12 +15,7 @@ const initialIterations = 100;
 
 const mandelbrot = new Mandelbrot(initialIterations);
 
-/**
- * @desc execute the mandelbrot set on a canvas
- */
-function execute(): void {
+window.onload = () => {
   const canvas = document.getElementById('mandelbrot') as HTMLCanvasElement;
   mandelbrot.draw(canvas);
-}
-
-window.onload = execute;
+};

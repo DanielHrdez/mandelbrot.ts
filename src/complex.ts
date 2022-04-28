@@ -21,7 +21,7 @@ export class Complex {
    * @param {number} real Real part of the complex number
    * @param {number} complex Complex part of the complex number
    */
-  constructor(real: number, complex: number) {
+  constructor(real: number = 0, complex: number = 0) {
     this.real = real;
     this.complex = complex;
   }

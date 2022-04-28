@@ -1,8 +1,7 @@
 import { Mandelbrot } from './mandelbrot.js';
-var initialIterations = 100;
-var mandelbrot = new Mandelbrot(initialIterations);
-function execute() {
-    var canvas = document.getElementById('mandelbrot');
+const initialIterations = 100;
+const mandelbrot = new Mandelbrot(initialIterations);
+window.onload = () => {
+    const canvas = document.getElementById('mandelbrot');
     mandelbrot.draw(canvas);
-}
-window.onload = execute;
+};
