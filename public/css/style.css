@@ -1,0 +1,117 @@
+html, body {
+  margin: 0%;
+  height: 100%;
+  width: 100%;
+  font-family: 'Josefin Sans';
+  background-color: #ffffff;
+}
+
+#title {
+  position: absolute;
+  color: #ffffff;
+  font-size: 75px;
+  left: 50%;
+  top: 0;
+  margin-top: 20px;
+  transform: translate(-50%, 0);
+}
+
+#banner {
+  background-color: #000000;
+  padding: 50px;
+}
+
+#links {
+  position: absolute;
+  display: flex;
+  justify-content:space-around;
+  list-style-type:none;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  gap: 2rem;
+}
+
+.card {
+  border-radius: 20px;
+  background-color: #e8e8e8;
+  transition: .2s ease-in-out;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: scale(1.1);
+}
+
+.card-img {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+}
+
+.card-container {
+  position: relative;
+  align-items: center;
+  gap: 2em;
+  padding: 2em;
+  backdrop-filter: blur(10px);
+  transition: .2s ease-in-out;
+}
+
+.card:hover .card-container {
+  transform: translate(0, -50%);
+}
+
+.card-title {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #000000;
+}
+
+.card-description {
+  position: absolute;
+  opacity: 0;
+  transform: translate(0, 50%);
+  color: #000000;
+  transition: .5s ease-in-out;
+}
+
+.card:hover .card-description {
+  opacity: 1;
+}
+
+#mandelbrot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px #0000007c;
+}
+
+#Home-Link {
+  top: 50%;
+  left: 2%;
+  position: absolute;
+  font-size: 2em;
+  font-weight: bold;
+  color: #000000;
+  transition: .2s ease-in-out;
+  text-decoration: none;
+}
+
+#Home-Link:hover {
+  color: #0d0055;
+  transform: scale(1.1);
+}
+
+#mandelbrot-area {
+  font-size: 2em;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

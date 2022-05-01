@@ -11,11 +11,11 @@
 
 import {Mandelbrot} from './mandelbrot.js';
 
-const initialIterations = 100;
-
-const mandelbrot = new Mandelbrot(initialIterations);
-
 window.onload = () => {
+  const initialIterations = 200;
   const canvas = document.getElementById('mandelbrot') as HTMLCanvasElement;
-  mandelbrot.draw(canvas);
+  const area = document.getElementById('mandelbrot-area') as HTMLCanvasElement;
+  const mandelbrot = new Mandelbrot(canvas, initialIterations);
+  mandelbrot.draw();
+  area.textContent += mandelbrot.getArea().toString();
 };

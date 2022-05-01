@@ -101,4 +101,12 @@
   "exclude": [
     "test",
   ],
+  "typedocOptions": {
+    "entryPoints": [
+      "src/execution.ts",
+      "src/complex.ts",
+      "src/mandelbrot.ts",
+    ],
+    "out": "./public/docs",
+  }
 }
