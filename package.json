@@ -25,7 +25,7 @@
     "test": "jest",
     "watch": "jest --watchAll --verbose",
     "coverage": "jest --coverage --verbose",
-    "start": "web-server/app.js"
+    "start": "tsc-watch --onSuccess \"node .\""
   },
   "repository": {
     "type": "git",

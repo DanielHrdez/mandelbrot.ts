@@ -14,8 +14,6 @@ import {Mandelbrot} from './mandelbrot.js';
 window.onload = () => {
   const initialIterations = 200;
   const canvas = document.getElementById('mandelbrot') as HTMLCanvasElement;
-  const area = document.getElementById('mandelbrot-area') as HTMLCanvasElement;
   const mandelbrot = new Mandelbrot(canvas, initialIterations);
-  mandelbrot.draw();
-  area.textContent += mandelbrot.getArea().toString();
+  mandelbrot.draw(initialIterations * 1e3);
 };

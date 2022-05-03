@@ -17,7 +17,6 @@ import {Complex} from './complex.js';
  */
 export class Mandelbrot {
   private maxIterations: number;
-  private area: number;
   private context: CanvasRenderingContext2D;
   private width: number;
   private height: number;
@@ -30,12 +29,14 @@ export class Mandelbrot {
    * @param {HTMLCanvasElement} canvas - canvas
    * @param {number} maxIterations - max iterations
    */
-  constructor(canvas: HTMLCanvasElement, maxIterations: number = 100) {
+  constructor(
+      canvas: HTMLCanvasElement,
+      maxIterations: number = 10000,
+  ) {
     this.context = canvas.getContext('2d')!;
     this.width = canvas.width;
     this.height = canvas.height;
     this.maxIterations = maxIterations;
-    this.area = 0;
     this.pixelLenght = 1 / ((this.width * this.height) / 16);
     this.maxRgba = 255;
     this.RgbaPart = this.maxRgba / 60;
@@ -49,8 +50,7 @@ export class Mandelbrot {
     return 'Mandelbrot:\n' +
         `  Width: ${this.width}\n` +
         `  Height: ${this.height}\n` +
-        `  Max iterations: ${this.maxIterations}\n` +
-        `  Area: ${this.area}`;
+        `  Max iterations: ${this.maxIterations}\n`;
   }
 
   /**
@@ -64,25 +64,63 @@ export class Mandelbrot {
       result = result.mul(result).add(complex);
       if (result.abs() > 2) return i;
     }
-    this.area += this.pixelLenght;
     return this.maxIterations;
   }
 
   /**
    * @desc Draws the mandelbrot set on a canvas
+   * @param {number} iterationsArea - iterations of the area
    */
-  public draw(): void {
+  public draw(iterationsArea: number): void {
     const imageData = this.context?.getImageData(0, 0, this.width, this.height);
     const imageDataResult = this.calculatePixels(imageData!.data);
     this.context?.putImageData(imageDataResult, 0, 0);
+    const [area, error] = this.calculateArea(iterationsArea);
+    const maxDecimals = 1e6;
+    this.context.font = '40px Josefin Sans';
+    this.context?.fillText(
+        `Area: ${Math.round(area * maxDecimals) / maxDecimals}`,
+        10,
+        40,
+    );
+    this.context?.fillText(
+        `Error: ${Math.round(error * maxDecimals) / maxDecimals}`,
+        10,
+        80,
+    );
   }
 
   /**
-   * @desc Getter of the Area
-   * @return {number} The area
+   * @desc Calculates the area of the mandelbrot set
+   * @param {number} maxIterationsArea - max iterations of the area
+   * @return {[number, number]} - area and error
    */
-  public getArea(): number {
-    return this.area;
+  private calculateArea(maxIterationsArea: number): [number, number] {
+    const randomComplexPoints = this.randomPoints(maxIterationsArea);
+    let insidePoints = 0;
+    randomComplexPoints.forEach((complexPoint) => {
+      const result = this.calculate(complexPoint);
+      if (result === this.maxIterations) insidePoints++;
+    });
+    const numberOfPoints = randomComplexPoints.length;
+    const area = 5.625 * insidePoints / numberOfPoints;
+    const error = area / (numberOfPoints ** 0.5);
+    return [area, error];
+  }
+
+  /**
+   * @desc Calculates random points in the interval [(-2.0, 0), (0.5, 1.125)]
+   * @param {number} maxIterationsArea - max iterations of the area
+   * @return {Complex[]} - array of random complex numbers
+   */
+  private randomPoints(maxIterationsArea: number): Complex[] {
+    const randomComplex: Complex[] = [];
+    for (let i = 0; i < maxIterationsArea; i++) {
+      const realPart = Math.random() * -2.5 + 0.5;
+      const imaginaryPart = Math.random() * 1.125;
+      randomComplex.push(new Complex(realPart, imaginaryPart));
+    }
+    return randomComplex;
   }
 
   /**
@@ -90,13 +128,14 @@ export class Mandelbrot {
    * @param {Uint8ClampedArray} pixels - pixels
    * @return {ImageData} - image data
    */
-  public calculatePixels(pixels: Uint8ClampedArray) {
+  private calculatePixels(pixels: Uint8ClampedArray) {
     const channels = 4;
     const imageData = new ImageData(pixels, this.width, this.height);
     const ratio = 360 / this.maxIterations;
     const ratioWidth = 4 / this.width;
     const ratioHeight = 4 / this.height;
-    for (let i = 0; i < pixels!.length; i += channels) {
+    const middleLength = pixels!.length / 2;
+    for (let i = 0; i < middleLength; i += channels) {
       const index = i / channels;
       const xPosition = index % this.width;
       const yPosition = Math.floor(index / this.width);
@@ -110,6 +149,32 @@ export class Mandelbrot {
       imageData.data[i + 2] = color[2];
       imageData.data[i + 3] = this.maxRgba;
     }
+    return this.mirror(imageData);
+  }
+
+  /**
+   * @desc Mirrors the image data
+   * @param {ImageData} imageData - image data
+   * @return {ImageData} - image data mirrored
+   */
+  private mirror(imageData: ImageData): ImageData {
+    const channels = 4;
+    const widthHeight = this.width * this.height;
+    const middleLength = widthHeight * 2;
+    const pixelsLength = widthHeight * channels;
+    const lenghtRow = this.width * channels;
+    let row = lenghtRow;
+    let countRows = 2;
+    for (let i = middleLength; i < pixelsLength; i += channels) {
+      if (i % lenghtRow === 0) {
+        row = lenghtRow * countRows;
+        countRows += 2;
+      }
+      imageData.data[i] = imageData.data[i - row];
+      imageData.data[i + 1] = imageData.data[i + 1 - row];
+      imageData.data[i + 2] = imageData.data[i + 2 - row];
+      imageData.data[i + 3] = imageData.data[i + 3 - row];
+    }
     return imageData;
   }
 
@@ -118,7 +183,7 @@ export class Mandelbrot {
    * @param {number} hue - color
    * @return {number[]} - RGBA representation
    */
-  public hueToRgb(hue: number): number[] {
+  private hueToRgb(hue: number): number[] {
     if (hue >= 0 && hue < 60) {
       return [this.maxRgba, hue * this.RgbaPart, 0];
     }
