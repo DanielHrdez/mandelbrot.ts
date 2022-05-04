@@ -108,19 +108,23 @@ export class Mandelbrot {
    */
   private async calculateArea(maxIterationsArea: number): Promise<void> {
     const randomComplexPoints = this.randomPoints(maxIterationsArea);
-    let insidePoints = 0;
     const numberOfPoints = randomComplexPoints.length;
-    let area = 0;
-    let error = 0;
+    const factor = 5.625 / numberOfPoints;
+    const squareRoot = (numberOfPoints ** 0.5);
+    const factorSquareRoot = factor / squareRoot;
+    let area = factor;
+    let error = area / squareRoot;
     let count = 0;
     for (const complexPoint of randomComplexPoints) {
       const result = this.calculate(complexPoint);
-      if (result === this.maxIterations) insidePoints++;
-      area = 5.625 * insidePoints / numberOfPoints;
-      error = area / (numberOfPoints ** 0.5);
-      if (count % 1e4 == 0) await this.drawAreaError(area, error);
-      count++;
+      if (result === this.maxIterations) {
+        area += factor;
+        error += factorSquareRoot;
+        if (count % 1e3 == 0) await this.drawAreaError(area, error);
+        count++;
+      }
     }
+    await this.drawAreaError(area, error);
   }
 
   /**
