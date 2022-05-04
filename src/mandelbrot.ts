@@ -71,11 +71,22 @@ export class Mandelbrot {
    * @desc Draws the mandelbrot set on a canvas
    * @param {number} iterationsArea - iterations of the area
    */
-  public draw(iterationsArea: number): void {
+  public async draw(iterationsArea: number): Promise<void> {
     const imageData = this.context?.getImageData(0, 0, this.width, this.height);
-    const imageDataResult = this.calculatePixels(imageData!.data);
+    const imageDataResult = await this.calculatePixels(imageData!.data);
     this.context?.putImageData(imageDataResult, 0, 0);
-    const [area, error] = this.calculateArea(iterationsArea);
+    this.calculateArea(iterationsArea);
+  }
+
+  /**
+   * @desc Print the area of the mandelbrot set
+   * @param {number} area - area
+   * @param {number} error - error
+   */
+  private async drawAreaError(area: number, error: number): Promise<void> {
+    this.context.fillStyle = '#FF0000';
+    this.context.fillRect(0, 0, this.width / 2, this.height / 8);
+    this.context.fillStyle = '#000000';
     const maxDecimals = 1e6;
     this.context.font = '40px Josefin Sans';
     this.context?.fillText(
@@ -88,24 +99,28 @@ export class Mandelbrot {
         10,
         80,
     );
+    await this.sleep(0);
   }
 
   /**
    * @desc Calculates the area of the mandelbrot set
    * @param {number} maxIterationsArea - max iterations of the area
-   * @return {[number, number]} - area and error
    */
-  private calculateArea(maxIterationsArea: number): [number, number] {
+  private async calculateArea(maxIterationsArea: number): Promise<void> {
     const randomComplexPoints = this.randomPoints(maxIterationsArea);
     let insidePoints = 0;
-    randomComplexPoints.forEach((complexPoint) => {
+    const numberOfPoints = randomComplexPoints.length;
+    let area = 0;
+    let error = 0;
+    let count = 0;
+    for (const complexPoint of randomComplexPoints) {
       const result = this.calculate(complexPoint);
       if (result === this.maxIterations) insidePoints++;
-    });
-    const numberOfPoints = randomComplexPoints.length;
-    const area = 5.625 * insidePoints / numberOfPoints;
-    const error = area / (numberOfPoints ** 0.5);
-    return [area, error];
+      area = 5.625 * insidePoints / numberOfPoints;
+      error = area / (numberOfPoints ** 0.5);
+      if (count % 1e4 == 0) await this.drawAreaError(area, error);
+      count++;
+    }
   }
 
   /**
@@ -124,32 +139,56 @@ export class Mandelbrot {
   }
 
   /**
+   * @desc Sleeps for a given time
+   * @param {number} milliseconds - milliseconds
+   * @return {Promise<void>} - promise
+   */
+  private sleep(milliseconds: number): Promise<void> {
+    return new Promise((nothing) => setTimeout(nothing, milliseconds));
+  };
+
+  /**
    * @desc Calculates each pixel of the mandelbrot set
    * @param {Uint8ClampedArray} pixels - pixels
    * @return {ImageData} - image data
    */
-  private calculatePixels(pixels: Uint8ClampedArray) {
+  private async calculatePixels(pixels: Uint8ClampedArray) {
     const channels = 4;
     const imageData = new ImageData(pixels, this.width, this.height);
     const ratio = 360 / this.maxIterations;
     const ratioWidth = 4 / this.width;
     const ratioHeight = 4 / this.height;
     const middleLength = pixels!.length / 2;
+    const maxRgba = 255;
+    const minRgba = 0;
+    const lenghtRow = this.width * channels * this.height * 0.01;
     for (let i = 0; i < middleLength; i += channels) {
+      if (i % lenghtRow === 0) {
+        this.context?.putImageData(imageData, 0, 0);
+        this.context?.putImageData(await this.mirror(imageData), 0, 0);
+        await this.sleep(0);
+      }
       const index = i / channels;
       const xPosition = index % this.width;
       const yPosition = Math.floor(index / this.width);
       const xCentered = xPosition * ratioWidth - 2;
       const yCentered = yPosition * ratioHeight - 2;
-      const complex = new Complex(xCentered, yCentered);
-      const result = this.calculate(complex);
-      const color = this.hueToRgb(result * ratio);
-      imageData.data[i] = color[0];
-      imageData.data[i + 1] = color[1];
-      imageData.data[i + 2] = color[2];
-      imageData.data[i + 3] = this.maxRgba;
+      if (xCentered < -2 || xCentered > 0.5 || yCentered < -1.125) {
+        imageData.data[i] = maxRgba;
+        imageData.data[i + 1] = minRgba;
+        imageData.data[i + 2] = minRgba;
+        imageData.data[i + 3] = maxRgba;
+      } else {
+        const complex = new Complex(xCentered, yCentered);
+        const result = this.calculate(complex);
+        const color = this.hueToRgb(result * ratio);
+        imageData.data[i] = color[0];
+        imageData.data[i + 1] = color[1];
+        imageData.data[i + 2] = color[2];
+        imageData.data[i + 3] = this.maxRgba;
+      }
     }
-    return this.mirror(imageData);
+    return await this.mirror(imageData);
   }
 
   /**
@@ -157,7 +196,7 @@ export class Mandelbrot {
    * @param {ImageData} imageData - image data
    * @return {ImageData} - image data mirrored
    */
-  private mirror(imageData: ImageData): ImageData {
+  private async mirror(imageData: ImageData): Promise<ImageData> {
     const channels = 4;
     const widthHeight = this.width * this.height;
     const middleLength = widthHeight * 2;

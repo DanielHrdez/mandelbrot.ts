@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { Complex } from './complex.js';
 export class Mandelbrot {
     constructor(canvas, maxIterations = 10000) {
@@ -25,28 +34,46 @@ export class Mandelbrot {
         return this.maxIterations;
     }
     draw(iterationsArea) {
-        var _a, _b, _c, _d;
-        const imageData = (_a = this.context) === null || _a === void 0 ? void 0 : _a.getImageData(0, 0, this.width, this.height);
-        const imageDataResult = this.calculatePixels(imageData.data);
-        (_b = this.context) === null || _b === void 0 ? void 0 : _b.putImageData(imageDataResult, 0, 0);
-        const [area, error] = this.calculateArea(iterationsArea);
-        const maxDecimals = 1e6;
-        this.context.font = '40px Josefin Sans';
-        (_c = this.context) === null || _c === void 0 ? void 0 : _c.fillText(`Area: ${Math.round(area * maxDecimals) / maxDecimals}`, 10, 40);
-        (_d = this.context) === null || _d === void 0 ? void 0 : _d.fillText(`Error: ${Math.round(error * maxDecimals) / maxDecimals}`, 10, 80);
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const imageData = (_a = this.context) === null || _a === void 0 ? void 0 : _a.getImageData(0, 0, this.width, this.height);
+            const imageDataResult = yield this.calculatePixels(imageData.data);
+            (_b = this.context) === null || _b === void 0 ? void 0 : _b.putImageData(imageDataResult, 0, 0);
+            this.calculateArea(iterationsArea);
+        });
+    }
+    drawAreaError(area, error) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            this.context.fillStyle = '#FF0000';
+            this.context.fillRect(0, 0, this.width / 2, this.height / 8);
+            this.context.fillStyle = '#000000';
+            const maxDecimals = 1e6;
+            this.context.font = '40px Josefin Sans';
+            (_a = this.context) === null || _a === void 0 ? void 0 : _a.fillText(`Area: ${Math.round(area * maxDecimals) / maxDecimals}`, 10, 40);
+            (_b = this.context) === null || _b === void 0 ? void 0 : _b.fillText(`Error: ${Math.round(error * maxDecimals) / maxDecimals}`, 10, 80);
+            yield this.sleep(0);
+        });
     }
     calculateArea(maxIterationsArea) {
-        const randomComplexPoints = this.randomPoints(maxIterationsArea);
-        let insidePoints = 0;
-        randomComplexPoints.forEach((complexPoint) => {
-            const result = this.calculate(complexPoint);
-            if (result === this.maxIterations)
-                insidePoints++;
+        return __awaiter(this, void 0, void 0, function* () {
+            const randomComplexPoints = this.randomPoints(maxIterationsArea);
+            let insidePoints = 0;
+            const numberOfPoints = randomComplexPoints.length;
+            let area = 0;
+            let error = 0;
+            let count = 0;
+            for (const complexPoint of randomComplexPoints) {
+                const result = this.calculate(complexPoint);
+                if (result === this.maxIterations)
+                    insidePoints++;
+                area = 5.625 * insidePoints / numberOfPoints;
+                error = area / (numberOfPoints ** 0.5);
+                if (count % 1e4 == 0)
+                    yield this.drawAreaError(area, error);
+                count++;
+            }
         });
-        const numberOfPoints = randomComplexPoints.length;
-        const area = 5.625 * insidePoints / numberOfPoints;
-        const error = area / (numberOfPoints ** 0.5);
-        return [area, error];
     }
     randomPoints(maxIterationsArea) {
         const randomComplex = [];
@@ -57,48 +84,73 @@ export class Mandelbrot {
         }
         return randomComplex;
     }
+    sleep(milliseconds) {
+        return new Promise((nothing) => setTimeout(nothing, milliseconds));
+    }
+    ;
     calculatePixels(pixels) {
-        const channels = 4;
-        const imageData = new ImageData(pixels, this.width, this.height);
-        const ratio = 360 / this.maxIterations;
-        const ratioWidth = 4 / this.width;
-        const ratioHeight = 4 / this.height;
-        const middleLength = pixels.length / 2;
-        for (let i = 0; i < middleLength; i += channels) {
-            const index = i / channels;
-            const xPosition = index % this.width;
-            const yPosition = Math.floor(index / this.width);
-            const xCentered = xPosition * ratioWidth - 2;
-            const yCentered = yPosition * ratioHeight - 2;
-            const complex = new Complex(xCentered, yCentered);
-            const result = this.calculate(complex);
-            const color = this.hueToRgb(result * ratio);
-            imageData.data[i] = color[0];
-            imageData.data[i + 1] = color[1];
-            imageData.data[i + 2] = color[2];
-            imageData.data[i + 3] = this.maxRgba;
-        }
-        return this.mirror(imageData);
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const channels = 4;
+            const imageData = new ImageData(pixels, this.width, this.height);
+            const ratio = 360 / this.maxIterations;
+            const ratioWidth = 4 / this.width;
+            const ratioHeight = 4 / this.height;
+            const middleLength = pixels.length / 2;
+            const maxRgba = 255;
+            const minRgba = 0;
+            const lenghtRow = this.width * channels * this.height * 0.01;
+            for (let i = 0; i < middleLength; i += channels) {
+                if (i % lenghtRow === 0) {
+                    (_a = this.context) === null || _a === void 0 ? void 0 : _a.putImageData(imageData, 0, 0);
+                    (_b = this.context) === null || _b === void 0 ? void 0 : _b.putImageData(yield this.mirror(imageData), 0, 0);
+                    yield this.sleep(0);
+                }
+                const index = i / channels;
+                const xPosition = index % this.width;
+                const yPosition = Math.floor(index / this.width);
+                const xCentered = xPosition * ratioWidth - 2;
+                const yCentered = yPosition * ratioHeight - 2;
+                if (xCentered < -2 || xCentered > 0.5 || yCentered < -1.125) {
+                    imageData.data[i] = maxRgba;
+                    imageData.data[i + 1] = minRgba;
+                    imageData.data[i + 2] = minRgba;
+                    imageData.data[i + 3] = maxRgba;
+                }
+                else {
+                    const complex = new Complex(xCentered, yCentered);
+                    const result = this.calculate(complex);
+                    const color = this.hueToRgb(result * ratio);
+                    imageData.data[i] = color[0];
+                    imageData.data[i + 1] = color[1];
+                    imageData.data[i + 2] = color[2];
+                    imageData.data[i + 3] = this.maxRgba;
+                }
+            }
+            return yield this.mirror(imageData);
+        });
     }
     mirror(imageData) {
-        const channels = 4;
-        const widthHeight = this.width * this.height;
-        const middleLength = widthHeight * 2;
-        const pixelsLength = widthHeight * channels;
-        const lenghtRow = this.width * channels;
-        let row = lenghtRow;
-        let countRows = 2;
-        for (let i = middleLength; i < pixelsLength; i += channels) {
-            if (i % lenghtRow === 0) {
-                row = lenghtRow * countRows;
-                countRows += 2;
+        return __awaiter(this, void 0, void 0, function* () {
+            const channels = 4;
+            const widthHeight = this.width * this.height;
+            const middleLength = widthHeight * 2;
+            const pixelsLength = widthHeight * channels;
+            const lenghtRow = this.width * channels;
+            let row = lenghtRow;
+            let countRows = 2;
+            for (let i = middleLength; i < pixelsLength; i += channels) {
+                if (i % lenghtRow === 0) {
+                    row = lenghtRow * countRows;
+                    countRows += 2;
+                }
+                imageData.data[i] = imageData.data[i - row];
+                imageData.data[i + 1] = imageData.data[i + 1 - row];
+                imageData.data[i + 2] = imageData.data[i + 2 - row];
+                imageData.data[i + 3] = imageData.data[i + 3 - row];
             }
-            imageData.data[i] = imageData.data[i - row];
-            imageData.data[i + 1] = imageData.data[i + 1 - row];
-            imageData.data[i + 2] = imageData.data[i + 2 - row];
-            imageData.data[i + 3] = imageData.data[i + 3 - row];
-        }
-        return imageData;
+            return imageData;
+        });
     }
     hueToRgb(hue) {
         if (hue >= 0 && hue < 60) {
